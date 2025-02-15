@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengecek Unfollow</title>
+    <title>Unfollow Checker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -71,70 +71,70 @@
 </head>
 <body>
     <div class="container">
-        <h2>Pengecek Unfollow</h2>
-        <p>Unggah file following.html dan followers_1.html untuk melihat siapa yang tidak memfollow balik.</p>
-        <label>Unggah following.html</label>
+        <h2>Unfollow Checker</h2>
+        <p>Upload following.html and followers_1.html to check who is not following back.</p>
+        <label>Upload following.html</label>
         <input type="file" id="followingFile"><br>
-        <label>Unggah followers_1.html</label>
+        <label>Upload followers_1.html</label>
         <input type="file" id="followersFile"><br>
-        <button onclick="processFiles()">Cek Unfollow</button>
+        <button onclick="processFiles()">Check Unfollow</button>
         <button onclick="window.location.href='tutorial.html'">Tutorial</button>
         <div id="result"></div>
     </div>
 </body>
 
-    <script>
-        function extractUsernames(html) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
-            const links = doc.querySelectorAll("a"); 
-            return [...links].map(link => link.textContent.trim()).filter(username => username);
+<script>
+    function extractUsernames(html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const links = doc.querySelectorAll("a"); 
+        return [...links].map(link => link.textContent.trim()).filter(username => username);
+    }
+
+    function processFiles() {
+        const followingFile = document.getElementById('followingFile').files[0];
+        const followersFile = document.getElementById('followersFile').files[0];
+        if (!followingFile || !followersFile) {
+            document.getElementById('result').innerText = 'Please upload both files!';
+            return;
         }
-
-        function processFiles() {
-            const followingFile = document.getElementById('followingFile').files[0];
-            const followersFile = document.getElementById('followersFile').files[0];
-            if (!followingFile || !followersFile) {
-                document.getElementById('result').innerText = 'Harap unggah kedua file!';
-                return;
-            }
-            
-            const reader1 = new FileReader();
-            const reader2 = new FileReader();
-            
-            reader1.onload = function(e1) {
-                reader2.onload = function(e2) {
-                    try {
-                        const following = extractUsernames(e1.target.result);
-                        const followers = extractUsernames(e2.target.result);
-                        
-                        if (!following.length || !followers.length) {
-                            document.getElementById('result').innerText = 'Gagal mengekstrak username dari file!';
-                            return;
-                        }
-                        
-                        const followingSet = new Set(following);
-                        const followersSet = new Set(followers);
-                        const notFollowingBack = [...followingSet].filter(user => !followersSet.has(user));
-
-                        if (notFollowingBack.length) {
-                            let tableHTML = '<table><tr><th>No</th><th>Nama Pengguna</th><th>Profil</th></tr>';
-                            notFollowingBack.forEach((user, index) => {
-                                tableHTML += `<tr><td>${index + 1}</td><td>${user}</td><td><a href='https://www.instagram.com/${user}' target='_blank'>Kunjungi Profil</a></td></tr>`;
-                            });
-                            tableHTML += '</table>';
-                            document.getElementById('result').innerHTML = `<p>Orang yang tidak memfollow balik:</p>${tableHTML}`;
-                        } else {
-                            document.getElementById('result').innerHTML = '<p>Semua orang yang Anda follow juga memfollow balik.</p>';
-                        }
-                    } catch (error) {
-                        document.getElementById('result').innerText = 'Terjadi kesalahan dalam membaca file!';
+        
+        const reader1 = new FileReader();
+        const reader2 = new FileReader();
+        
+        reader1.onload = function(e1) {
+            reader2.onload = function(e2) {
+                try {
+                    const following = extractUsernames(e1.target.result);
+                    const followers = extractUsernames(e2.target.result);
+                    
+                    if (!following.length || !followers.length) {
+                        document.getElementById('result').innerText = 'Failed to extract usernames from files!';
+                        return;
                     }
-                };
-                reader2.readAsText(followersFile);
+                    
+                    const followingSet = new Set(following);
+                    const followersSet = new Set(followers);
+                    const notFollowingBack = [...followingSet].filter(user => !followersSet.has(user));
+
+                    if (notFollowingBack.length) {
+                        let tableHTML = '<table><tr><th>No</th><th>Username</th><th>Profile</th></tr>';
+                        notFollowingBack.forEach((user, index) => {
+                            tableHTML += `<tr><td>${index + 1}</td><td>${user}</td><td><a href='https://www.instagram.com/${user}' target='_blank'>Visit Profile</a></td></tr>`;
+                        });
+                        tableHTML += '</table>';
+                        document.getElementById('result').innerHTML = `<p>People who are not following back:</p>${tableHTML}`;
+                    } else {
+                        document.getElementById('result').innerHTML = '<p>Everyone you follow follows you back.</p>';
+                    }
+                } catch (error) {
+                    document.getElementById('result').innerText = 'An error occurred while reading the files!';
+                }
             };
-            reader1.readAsText(followingFile);
-        }
-    </script>
+            reader2.readAsText(followersFile);
+        };
+        reader1.readAsText(followingFile);
+    }
+</script>
 </body>
 </html>
